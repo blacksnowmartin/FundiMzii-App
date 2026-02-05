@@ -47,7 +47,7 @@
             transform: translateX(-50%);
             color: white;
             font-family: Arial, sans-serif;
-            font-size: 16px;
+            font-size: 14px;
             background-color: rgba(0,0,0,0.7);
             padding: 10px 15px;
             border-radius: 5px;
@@ -73,7 +73,7 @@
         </div>
     </div>
     <div id="instructions">
-        WASD to Move | Space to Jump | Mouse to Orbit Camera | F to Play Kora Song
+        WASD to Move | Space to Jump | Mouse to Orbit Camera | F to Attack | Collect all 5 Sunstone Fragments to Win!
     </div>
     <script type="module" src="main.js"></script>
     <script src="https://storage.googleapis.com/rosebud_staticfiles/ScriptsLoader-Universal.js"></script>
@@ -115,7 +115,9 @@ function init() {
 
     function animate(time) {
         requestAnimationFrame(animate);
-        game.update(time);
+        if (!game.isGameOver) {
+            game.update(time);
+        }
         game.render();
     }
 
@@ -162,10 +164,12 @@ export class Game {
         this.initWorld();
         this.initEnemies();
         this.initVFX();
+        this.initUI();
         
         this.clock = new THREE.Clock();
         this.bindEventListeners();
         this.updateLoadingProgress(0.6); // After core initializations
+        this.score = 0;
     }
 
     initScene() {
@@ -249,19 +253,49 @@ export class Game {
     initWorld() {
         this.world = new World(this.scene);
         this.scene.add(this.world.group);
-        this.sunstoneFragment = this.world.sunstoneFragment; // Keep a reference
+        this.sunstoneFragments = this.world.sunstoneFragments; // Keep a reference
         this.updateLoadingProgress(0.5);
     }
 
     initEnemies() {
         this.enemies = [];
-        const wisp = new SpiritWisp(this.scene, new THREE.Vector3(5, 2.5, -8));
-        this.enemies.push(wisp);
-        this.scene.add(wisp.model);
+        const positions = [
+            new THREE.Vector3(5, 2.5, -8),
+            new THREE.Vector3(-10, 2.5, 5),
+            new THREE.Vector3(15, 2.5, 10),
+            new THREE.Vector3(-5, 2.5, -15),
+            new THREE.Vector3(0, 2.5, 20)
+        ];
+        positions.forEach(pos => {
+            const wisp = new SpiritWisp(this.scene, pos);
+            this.enemies.push(wisp);
+            this.scene.add(wisp.model);
+        });
     }
 
     initVFX() {
         this.koraAttackVFX = new KoraAttackVFX(this.scene);
+    }
+
+    initUI() {
+        this.healthBar = document.createElement('div');
+        this.healthBar.style.cssText = `
+            position: absolute; top: 10px; left: 10px; width: 200px; height: 20px;
+            background-color: #333; border: 2px solid #fff; border-radius: 10px; overflow: hidden;
+        `;
+        this.healthFill = document.createElement('div');
+        this.healthFill.style.cssText = `
+            width: 100%; height: 100%; background-color: #f00; transition: width 0.3s;
+        `;
+        this.healthBar.appendChild(this.healthFill);
+        document.body.appendChild(this.healthBar);
+
+        this.scoreDisplay = document.createElement('div');
+        this.scoreDisplay.style.cssText = `
+            position: absolute; top: 10px; right: 10px; color: white; font-size: 24px; font-family: Arial;
+        `;
+        this.scoreDisplay.textContent = 'Score: 0';
+        document.body.appendChild(this.scoreDisplay);
     }
 
     bindEventListeners() {
@@ -293,8 +327,10 @@ export class Game {
             if (!enemy.isDefeated) {
                 const intersects = raycaster.intersectObject(enemy.model, true);
                 if (intersects.length > 0 && intersects[0].distance < 10) {
-                    enemy.defeat();
-                    // Could add score or other effects here
+                    enemy.takeDamage(25); // Deal damage instead of instant defeat
+                    if (enemy.isDefeated) {
+                        this.score += 100; // Score for defeating enemy
+                    }
                 }
             }
         });
@@ -302,36 +338,39 @@ export class Game {
 
 
     checkSunstoneCollection() {
-        if (this.sunstoneFragment && !this.sunstoneFragment.collected) {
-            const distanceToFragment = this.player.model.position.distanceTo(this.sunstoneFragment.position);
-            if (distanceToFragment < 1.5) { // Collection radius
-                this.world.collectSunstoneFragment();
-                // Simple feedback:
-                const collectionMessage = document.createElement('div');
-                collectionMessage.textContent = "Sunstone Fragment Recovered!";
-                collectionMessage.style.cssText = `
-                    position: absolute; top: 20px; left: 50%; transform: translateX(-50%);
-                    padding: 15px 25px; background-color: rgba(100, 50, 150, 0.85); color: white;
-                    border-radius: 10px; font-size: 20px; font-family: Arial, sans-serif;
-                    box-shadow: 0 0 15px rgba(200, 150, 255, 0.7); z-index: 1000;
-                    animation: fadeOutMessage 3s forwards;
-                `;
-                document.body.appendChild(collectionMessage);
-                
-                const styleSheet = document.styleSheets[0];
-                styleSheet.insertRule(`
-                    @keyframes fadeOutMessage {
-                        0% { opacity: 1; transform: translateX(-50%) translateY(0); }
-                        80% { opacity: 1; transform: translateX(-50%) translateY(0); }
-                        100% { opacity: 0; transform: translateX(-50%) translateY(-20px); }
-                    }
-                `, styleSheet.cssRules.length);
+        this.sunstoneFragments.forEach(fragment => {
+            if (!fragment.collected) {
+                const distanceToFragment = this.player.model.position.distanceTo(fragment.position);
+                if (distanceToFragment < 1.5) { // Collection radius
+                    this.world.collectSunstoneFragment(fragment);
+                    this.score += 50; // Score for collecting fragment
+                    // Simple feedback:
+                    const collectionMessage = document.createElement('div');
+                    collectionMessage.textContent = "Sunstone Fragment Recovered!";
+                    collectionMessage.style.cssText = `
+                        position: absolute; top: 20px; left: 50%; transform: translateX(-50%);
+                        padding: 15px 25px; background-color: rgba(100, 50, 150, 0.85); color: white;
+                        border-radius: 10px; font-size: 20px; font-family: Arial, sans-serif;
+                        box-shadow: 0 0 15px rgba(200, 150, 255, 0.7); z-index: 1000;
+                        animation: fadeOutMessage 3s forwards;
+                    `;
+                    document.body.appendChild(collectionMessage);
+                    
+                    const styleSheet = document.styleSheets[0];
+                    styleSheet.insertRule(`
+                        @keyframes fadeOutMessage {
+                            0% { opacity: 1; transform: translateX(-50%) translateY(0); }
+                            80% { opacity: 1; transform: translateX(-50%) translateY(0); }
+                            100% { opacity: 0; transform: translateX(-50%) translateY(-20px); }
+                        }
+                    `, styleSheet.cssRules.length);
 
-                setTimeout(() => {
-                    document.body.removeChild(collectionMessage);
-                }, 3000);
+                    setTimeout(() => {
+                        document.body.removeChild(collectionMessage);
+                    }, 3000);
+                }
             }
-        }
+        });
     }
 
     update(time) {
@@ -345,14 +384,56 @@ export class Game {
         if (this.world) {
             this.world.update(deltaTime);
         }
-        this.enemies.forEach(enemy => enemy.update(deltaTime));
+        this.enemies.forEach(enemy => enemy.update(deltaTime, this.player));
         this.koraAttackVFX.update(deltaTime);
 
         this.checkSunstoneCollection();
+
+        // Update UI
+        this.healthFill.style.width = (this.player.health / this.player.maxHealth) * 100 + '%';
+        this.scoreDisplay.textContent = 'Score: ' + this.score;
+
+        // Check game over
+        if (!this.player.isAlive()) {
+            this.gameOver();
+        }
+
+        // Check win condition
+        if (this.world.collectedFragments === this.world.totalFragments) {
+            this.winGame();
+        }
     }
 
     render() {
         this.renderer.render(this.scene, this.camera);
+    }
+
+    gameOver() {
+        // Stop the game loop or show game over screen
+        const gameOverMessage = document.createElement('div');
+        gameOverMessage.textContent = "Game Over! Final Score: " + this.score;
+        gameOverMessage.style.cssText = `
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            padding: 20px 40px; background-color: rgba(0,0,0,0.8); color: white;
+            border-radius: 10px; font-size: 32px; font-family: Arial; text-align: center;
+            z-index: 2000;
+        `;
+        document.body.appendChild(gameOverMessage);
+        // Stop animation
+        this.isGameOver = true;
+    }
+
+    winGame() {
+        const winMessage = document.createElement('div');
+        winMessage.textContent = "You Win! All fragments collected. Score: " + this.score;
+        winMessage.style.cssText = `
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            padding: 20px 40px; background-color: rgba(0,255,0,0.8); color: white;
+            border-radius: 10px; font-size: 32px; font-family: Arial; text-align: center;
+            z-index: 2000;
+        `;
+        document.body.appendChild(winMessage);
+        this.isGameOver = true;
     }
 }
 ]]>
@@ -371,6 +452,8 @@ export class Player {
 
         this.attackCooldown = 1000; // 1 second cooldown
         this.lastAttackTime = 0;
+        this.health = 100;
+        this.maxHealth = 100;
     }
 
     createModel() {
@@ -462,6 +545,16 @@ export class Player {
     update(deltaTime) {
         // Player model updates (e.g., animations) can go here
     }
+
+    takeDamage(amount) {
+        this.health -= amount;
+        if (this.health < 0) this.health = 0;
+        // Could add visual feedback like flashing or sound
+    }
+
+    isAlive() {
+        return this.health > 0;
+    }
 }
 ]]>
 </rosieCreate>
@@ -477,7 +570,9 @@ export class World {
         this.createGround();
         this.createBaobabTrees();
         this.createFlora();
-        this.createSunstoneFragment();
+        this.createSunstoneFragments();
+        this.collectedFragments = 0;
+        this.totalFragments = 5;
     }
 
     createGround() {
@@ -588,7 +683,24 @@ export class World {
         }
     }
 
-    createSunstoneFragment() {
+    createSunstoneFragments() {
+        this.sunstoneFragments = [];
+        const positions = [
+            new THREE.Vector3(8, 3, 12),
+            new THREE.Vector3(-12, 3, -8),
+            new THREE.Vector3(20, 3, -5),
+            new THREE.Vector3(-18, 3, 15),
+            new THREE.Vector3(0, 3, -25)
+        ];
+        positions.forEach(pos => {
+            const fragment = this.createSingleFragment();
+            fragment.position.copy(pos);
+            this.sunstoneFragments.push(fragment);
+            this.group.add(fragment);
+        });
+    }
+
+    createSingleFragment() {
         const fragmentGeometry = new THREE.IcosahedronGeometry(0.5, 0);
         const fragmentMaterial = new THREE.MeshStandardMaterial({
             color: 0xFFD700, // Gold
@@ -599,30 +711,30 @@ export class World {
             transparent: true,
             opacity: 0.9
         });
-        this.sunstoneFragment = new THREE.Mesh(fragmentGeometry, fragmentMaterial);
-        this.sunstoneFragment.position.set(8, 3, 12); // Place it somewhere interesting
-        this.sunstoneFragment.castShadow = true;
-        this.sunstoneFragment.collected = false;
+        const fragment = new THREE.Mesh(fragmentGeometry, fragmentMaterial);
+        fragment.castShadow = true;
+        fragment.collected = false;
 
         // Add a point light to make it glow more
         const light = new THREE.PointLight(0xFFD700, 5, 5);
-        light.position.copy(this.sunstoneFragment.position);
-        this.sunstoneFragment.add(light); // Attach light to fragment
+        light.position.copy(fragment.position);
+        fragment.add(light); // Attach light to fragment
         
-        this.group.add(this.sunstoneFragment);
+        return fragment;
     }
     
-    collectSunstoneFragment() {
-        if (this.sunstoneFragment && !this.sunstoneFragment.collected) {
-            this.sunstoneFragment.collected = true;
+    collectSunstoneFragment(fragment) {
+        if (fragment && !fragment.collected) {
+            fragment.collected = true;
+            this.collectedFragments++;
             // Visual feedback for collection
-            new TWEEN.Tween(this.sunstoneFragment.scale)
+            new TWEEN.Tween(fragment.scale)
                 .to({ x: 0.01, y: 0.01, z: 0.01 }, 500)
                 .easing(TWEEN.Easing.Back.In)
                 .onComplete(() => {
-                    this.sunstoneFragment.visible = false;
+                    fragment.visible = false;
                     // Remove light too
-                    const pointLight = this.sunstoneFragment.children.find(c => c.isPointLight);
+                    const pointLight = fragment.children.find(c => c.isPointLight);
                     if(pointLight) pointLight.intensity = 0;
                 })
                 .start();
@@ -633,12 +745,14 @@ export class World {
 
 
     update(deltaTime) {
-        if (this.sunstoneFragment && !this.sunstoneFragment.collected) {
-            this.sunstoneFragment.rotation.y += 0.5 * deltaTime;
-            this.sunstoneFragment.rotation.x += 0.3 * deltaTime;
-            // Bobbing motion
-            this.sunstoneFragment.position.y = 3 + Math.sin(Date.now() * 0.001) * 0.25;
-        }
+        this.sunstoneFragments.forEach(fragment => {
+            if (!fragment.collected) {
+                fragment.rotation.y += 0.5 * deltaTime;
+                fragment.rotation.x += 0.3 * deltaTime;
+                // Bobbing motion
+                fragment.position.y = 3 + Math.sin(Date.now() * 0.001) * 0.25;
+            }
+        });
     }
 }
 ]]>
@@ -655,6 +769,12 @@ export class SpiritWisp {
         this.model.position.copy(position);
         this.isDefeated = false;
         this.initialY = position.y;
+        this.health = 50;
+        this.maxHealth = 50;
+        this.attackRange = 1.5;
+        this.attackCooldown = 2000; // 2 seconds
+        this.lastAttackTime = 0;
+        this.speed = 2;
     }
 
     createModel() {
@@ -723,7 +843,22 @@ export class SpiritWisp {
             .start();
     }
 
-    update(deltaTime) {
+    takeDamage(amount) {
+        this.health -= amount;
+        if (this.health <= 0) {
+            this.defeat();
+        }
+    }
+
+    attack(player) {
+        if (Date.now() - this.lastAttackTime > this.attackCooldown) {
+            this.lastAttackTime = Date.now();
+            player.takeDamage(10); // Deal 10 damage
+            // Visual feedback for attack, e.g., flash
+        }
+    }
+
+    update(deltaTime, player) {
         if (this.isDefeated) return;
 
         // Bobbing motion
@@ -733,6 +868,19 @@ export class SpiritWisp {
         if(this.particles) {
             this.particles.rotation.x += 0.5 * deltaTime;
             this.particles.rotation.y += 0.3 * deltaTime;
+        }
+
+        // AI: Move towards player if within range
+        const distance = this.model.position.distanceTo(player.model.position);
+        if (distance < 10) { // Detection range
+            const direction = new THREE.Vector3().subVectors(player.model.position, this.model.position).normalize();
+            this.model.position.add(direction.multiplyScalar(this.speed * deltaTime));
+            this.model.position.y = this.initialY; // Keep on ground
+        }
+
+        // Attack if close
+        if (distance < this.attackRange) {
+            this.attack(player);
         }
     }
 }
