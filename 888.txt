@@ -1,0 +1,53 @@
+FundiMzii: A Web-Based Application for Recording
+and Tracing Client Measurements for Tailors
+1. Title of the Project
+FundiMzii: A Web-Based Application for Recording and Tracing
+Client Measurements for Tailors
+2. Brief Overview of the Research Topic
+The tailoring industry in Kenya is largely informal and dominated by small-scale fundis operating
+in markets and residential areas. Existing mobile applications on Google Play Store such as
+Tailor Mate, CloudTailor, and Darzee offer measurement and order management features.
+However, preliminary field observations and interviews with over 35 professional tailors at
+Kariobangi North Market reveal that these applications have complex user interfaces, require
+constant internet connectivity, involve recurring subscription fees, and use workflows and
+terminologies that do not match local tailoring practices. Consequently, the majority of Kenyan
+tailors continue to rely on traditional exercise books and notebooks, which are prone to loss,
+damage, illegibility, and inefficiency.
+3. Brief Statement of the Research Problem
+Small-scale tailors in Kariobangi North Market and similar informal settings lack a simple,
+affordable, offline-capable digital tool designed specifically for the Kenyan context to capture,
+store, search, and retrieve client measurements and order history. The continued dependence
+on manual record-keeping using books leads to frequent measurement errors, misplaced or lost
+client records, delayed order fulfillment, and inability to efficiently serve returning clients for
+alterations, ultimately reducing service quality and business growth.
+4. Explanation of Why This Research Question is Important and Why the Project is Worth
+Pursuing
+This project addresses a practical, everyday challenge faced by thousands of fundis who form a
+critical part of Kenya’s informal economy and the local fashion value chain. A simple,
+locally-relevant digital solution has the potential to reduce measurement errors by more than
+80%, increase customer satisfaction, enable tailors to handle more clients, and improve their
+income without adding operational costs. The research will be conducted among more than 35
+professional tailors at Kariobangi North Market, providing real user feedback and ensuring the
+solution is grounded in actual needs. The project perfectly aligns with TUK’s emphasis on
+solving local problems using ICT, demonstrates practical skills in web development, database
+design, and user-centered design, and produces a deployable system that can later be
+extended into a mobile application in Project B. It also serves as a strong portfolio piece
+showcasing technology design for low-digital-literacy users in the informal sector — a highly
+sought-after skill in the Kenyan job market and among organizations promoting digital inclusion.
+5. Proposed Solution to the Research Problem in the Form of a System
+FundiMzii will be developed as a responsive web application that works seamlessly on low-cost
+smartphones, tablets, and desktop computers. The prototype will be developed and tested
+locally using XAMPP server with MySQL as the database management system.
+Core features of the proposed system:
+- Simple one-page client registration and measurement entry form (bilingual: English/Swahili)
+- Offline data capture with automatic synchronization when internet is available
+- Instant search functionality by client name, phone number, or date
+- Ability to attach reference photos of styles or finished garments
+- Generation and export of measurement sheets as PDF (for printing or WhatsApp sharing)
+- Basic reports showing total clients, pending orders, and frequently requested measurements
+- Extremely minimal and touch-friendly user interface that a tailor can learn in under 10 minutes
+Technologies to be used:
+- Frontend: HTML5, CSS3, Bootstrap 5, JavaScript
+- Backend: PHP (CodeIgniter or Laravel framework)
+- Database: MySQL
+- Local development and testing: XAMPP server

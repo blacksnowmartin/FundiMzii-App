@@ -1,0 +1,216 @@
+INSTALLATION INSTRUCTIONS FOR FUNDIMZII
+========================================
+
+## QUICK START (5 minutes)
+
+### Step 1: XAMPP Setup
+- Download and install XAMPP from https://www.apachefriends.org/
+- Start XAMPP Control Panel
+- Click "Start" next to Apache and MySQL
+
+### Step 2: Extract Application
+- Extract FundiMzii-App folder to C:\xampp\htdocs (Windows) or /opt/lampp/htdocs (Linux/Mac)
+
+### Step 3: Create Database
+- Open phpMyAdmin: http://localhost/phpmyadmin
+- Click "New" on left sidebar
+- Create database called "fundimzii"
+- Click Create
+
+### Step 4: Install Dependencies (if you have Composer)
+- Open Command Prompt/Terminal
+- Navigate to FundiMzii-App folder
+- Run: composer install
+- Run: php artisan migrate
+
+### Step 5: Access Application
+- Open browser and go to: http://localhost/FundiMzii-App/public
+- Click "Clients" to get started
+
+## DETAILED INSTALLATION
+
+### For Windows:
+
+1. Install XAMPP
+   - Download from https://www.apachefriends.org/download.html
+   - Run installer, accept defaults
+   - Choose installation location
+
+2. Extract FundiMzii-App
+   - Extract to C:\xampp\htdocs\FundiMzii-App
+
+3. Start Apache & MySQL
+   - Open XAMPP Control Panel (C:\xampp\xampp-control.exe)
+   - Click "Start" for Apache
+   - Click "Start" for MySQL
+   - Wait for both to show "running"
+
+4. Create Database
+   - Click "Admin" button next to MySQL
+   - Or go to http://localhost/phpmyadmin
+   - Look for "New" button at the bottom left
+   - Enter database name: fundimzii
+   - Click "Create"
+
+5. Access Application
+   - Open browser
+   - Type: http://localhost/FundiMzii-App/public
+   - Click "New Client" to start
+
+### For Linux/Mac:
+
+1. Install XAMPP
+   - Download for your OS from https://www.apachefriends.org/
+   - Extract and install following on-screen instructions
+
+2. Copy Application
+   - Extract FundiMzii-App to /opt/lampp/htdocs/FundiMzii-App
+   - Or apply appropriate permissions: sudo chmod -R 755 FundiMzii-App
+
+3. Start Services
+   - Open XAMPP Control Panel
+   - Click "Start" for Apache and MySQL
+   - Or from terminal: sudo /opt/lampp/lampp start
+
+4. Create Database
+   - Go to http://localhost/phpmyadmin
+   - Look for "New" at bottom left
+   - Enter: fundimzii
+   - Click "Create"
+
+5. Access Application
+   - Open browser
+   - Type: http://localhost/FundiMzii-App/public
+   - You're ready!
+
+## OPTIONAL: Advanced Setup with Composer
+
+If you have PHP and Composer installed:
+
+1. Open Terminal/Command Prompt
+2. Navigate to FundiMzii-App: cd FundiMzii-App
+3. Install dependencies: composer install
+4. Copy environment file: cp .env.example .env
+5. Generate app key: php artisan key:generate
+6. Run migrations: php artisan migrate
+7. Start dev server: php artisan serve
+8. Visit http://localhost:8000
+
+## TROUBLESHOOTING
+
+### "Cannot connect to database"
+- Check MySQL is running in XAMPP Control Panel
+- Verify database "fundimzii" exists in phpMyAdmin
+- Username is "root" with blank password (default)
+
+### "Page shows file list instead of application"
+- Make sure URL includes: /public at the end
+- Correct: http://localhost/FundiMzii-App/public
+- Incorrect: http://localhost/FundiMzii-App
+
+### "Cannot access http://localhost/phpmyadmin"
+- Make sure Apache is running (not just MySQL)
+- Click "Start" next to Apache in XAMPP Control Panel
+- Wait 5 seconds and try again
+
+### "Permission denied when saving files"
+- On Linux/Mac: sudo chmod -R 777 storage/ public/
+- Restart Apache after changing permissions
+
+### "Blank page or 500 error"
+- Check XAMPP error logs: XAMPP/logs/apache_error.log
+- Verify all folders created correctly
+- Clear browser cache (Ctrl+Shift+Delete)
+
+## GETTING STARTED
+
+### First Time Users:
+
+1. Dashboard
+   - Shows overview: total clients, orders status
+   - See recent activity and statistics
+
+2. Add New Client
+   - Go to "Clients" menu
+   - Click "+ New Client"
+   - Fill in name and phone number (required)
+   - Email, address, notes are optional
+
+3. Record Measurements
+   - Go to client's profile
+   - Click "+ Add" under Measurements
+   - Enter body measurements in centimeters
+   - Click "Record Measurement"
+
+4. Create Orders
+   - On client profile, click "+ Add" under Orders
+   - Describe what's being tailored
+   - Set status (pending, in progress, completed)
+   - Click "Create Order"
+
+5. Export PDF
+   - On client profile click "Export PDF"
+   - Share via WhatsApp or print
+
+## FEATURES CHECKLIST
+
+✓ Client registration (English/Swahili ready)
+✓ Measurement recording with up to 7 body dimensions
+✓ Photo attachment for styles
+✓ Quick search by name or phone
+✓ Order tracking (4 status types)
+✓ PDF export functionality
+✓ Dashboard with statistics
+✓ Offline mode (data syncs when online)
+✓ Touch-friendly interface
+✓ Mobile-responsive design
+
+## DATA BACKUP
+
+To backup your data:
+
+### Using phpMyAdmin:
+1. Go to http://localhost/phpmyadmin
+2. Click on "fundimzii" database
+3. Click "Export" tab
+4. Click "Go" button
+5. Save the SQL file somewhere safe
+
+### Manual SQL Backup:
+From command line:
+```
+mysqldump -u root fundimzii > fundimzii_backup.sql
+```
+
+## SYSTEM REQUIREMENTS
+
+Minimum:
+- 100 MB disk space
+- 512 MB RAM
+- Windows XP, Vista, 7, 8, 10+ or Linux/Mac OS
+- Any modern web browser
+
+Recommended:
+- 200 MB disk space
+- 1 GB RAM
+- Windows 7+ or Linux/Mac
+- Chrome, Firefox, Safari, or Edge (latest)
+
+## CONTACT & SUPPORT
+
+For issues or questions:
+1. Check this file (Installation Instructions)
+2. Check README.md in the application folder
+3. Review error messages in browser console (F12)
+4. Ensure database is created and running
+
+## IMPORTANT NOTES
+
+- Default MySQL username: root
+- Default MySQL password: (blank/empty)
+- Application stores files in storage/ folder
+- Photos stored in public/uploads/
+- Database tables auto-create on first run
+- Recommended to backup data weekly
+
+Enjoy using FundiMzii!
