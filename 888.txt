@@ -51,3 +51,5 @@ Technologies to be used:
 - Backend: PHP (CodeIgniter or Laravel framework)
 - Database: MySQL
 - Local development and testing: XAMPP server
+
+Edited by blacksnowmartin
