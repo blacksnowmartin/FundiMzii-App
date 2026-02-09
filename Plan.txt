@@ -1,0 +1,88 @@
+Implementation Plan — Calendar / Schedule
+
+Purpose
+- Provide a clear, day-by-day schedule for completing remaining setup, testing, and deployment tasks for the FundiMzii project.
+
+Assumptions
+- You are working on Linux and will use XAMPP for a local LAMP stack.
+- Composer and PHP CLI are available or will be installed as part of the steps below.
+
+How to use this plan
+- Follow each day's tasks in order. Mark items complete in the project's tracking system and run verification steps after each major action.
+
+Week Schedule (7 days)
+
+Day 1 — Environment & XAMPP (2–3 hours)
+- Task: Install XAMPP and verify PHP/Apache.
+  - Steps:
+    1. Download XAMPP for Linux from Apache Friends.
+    2. Install and start XAMPP services (Apache, MySQL).
+  - Verification:
+    - Open http://localhost and confirm XAMPP dashboard.
+  - Notes/Commands:
+    - Follow XAMPP installer instructions; use `sudo` where required.
+
+Day 2 — Project Placement & Permissions (1 hour)
+- Task: Place project into XAMPP `htdocs`, set permissions.
+  - Steps:
+    1. Copy the `FundiMzii-App` folder into XAMPP's `htdocs` (e.g., `/opt/lampp/htdocs/FundiMzii-App`).
+    2. Set writable permissions for `storage` and `bootstrap/cache` if present.
+  - Verification:
+    - Visit http://localhost/FundiMzii-App/public or project index to see the app (may show errors until configured).
+
+Day 3 — Database Setup & Config (1–2 hours)
+- Task: Create local DB and update config.
+  - Steps:
+    1. Use phpMyAdmin or `mysql` CLI to create database `fundimzii_local` (or preferred name).
+    2. Update `config/database.php` and any environment file to point to DB credentials.
+  - Verification:
+    - Successfully connect using `php -r "require 'vendor/autoload.php';"` or run a simple DB connection script.
+
+Day 4 — Dependencies, Migrations & Seeders (1–2 hours)
+- Task: Install Composer dependencies, run migrations and seeders.
+  - Steps:
+    1. From project root, run: `composer install`.
+    2. Run migrations: `php artisan migrate` (or the project's migration command).
+    3. Run seeders: `php artisan db:seed` (if seeders exist).
+  - Verification:
+    - Confirm tables exist in the DB and seed data is present.
+
+Day 5 — Start App, Smoke Tests (1–2 hours)
+- Task: Start local server and perform smoke tests on main routes.
+  - Steps:
+    1. Ensure Apache/PHP is running in XAMPP.
+    2. Open the app and navigate to key pages: clients, measurements, orders, reports.
+  - Verification:
+    - Pages load without fatal errors; core CRUD pages are reachable.
+
+Day 6 — Functional Testing (2–4 hours)
+- Task: Run thorough manual tests and log issues.
+  - Tests to perform:
+    - Create, edit, search, show, delete clients.
+    - Add and edit measurements.
+    - Create and edit orders; verify report generation.
+  - Verification:
+    - Record any bugs, stack traces, or UI/validation issues.
+
+Day 7 — Automated Tests, Bug Fixes, Docs (3–6 hours)
+- Task: Add/execute automated tests, fix critical bugs, finalize deployment docs.
+  - Steps:
+    1. Add PHPUnit or framework-appropriate tests for core flows.
+    2. Run tests: `vendor/bin/phpunit` (adjust as needed).
+    3. Fix high-priority bugs and re-run affected tests.
+    4. Update `DEPLOYMENT_SUMMARY.txt` and `INSTALLATION.txt` with any environment-specific steps discovered.
+  - Verification:
+    - All automated tests pass; documentation updated.
+
+Optional / Follow-up Tasks
+- CI Integration: Configure CI to run tests on push (GitHub Actions, GitLab CI).
+- Production Deployment: Prepare server config, SSL, production DB migration plan.
+
+Quick Checklist (Commands & Reminders)
+- XAMPP: start services via XAMPP control or `/opt/lampp/lampp start`.
+- Composer: `composer install` in `FundiMzii-App` root.
+- Migrations: `php artisan migrate` (or check `database/migrations` for framework commands).
+- Seeders: `php artisan db:seed`.
+- Tests: `vendor/bin/phpunit` or project's test runner.
+
+If you want a different timeframe (weekly, 2-week sprint, or more granular hourly plan), tell me the target deadline and I will adapt the schedule and break tasks into finer steps.
