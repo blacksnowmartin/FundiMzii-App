@@ -52,4 +52,4 @@ Technologies to be used:
 - Database: MySQL
 - Local development and testing: XAMPP server
 
-Edited by blacksnowmartin
+Edited by @ blacksnowmartin
