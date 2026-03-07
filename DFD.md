@@ -108,3 +108,29 @@ sequenceDiagram
     ReportController->>PDF: loadHTML(...)
     PDF-->>ReportController: generated file
     ReportController-->>Browser: download response
+
+# Data-Flow Diagrams DFD
+
+Level 0 Context diagram
+
+flowchart TB
+    U(User) -->|uses| S(System)
+    S -->|reads/writes| DB[(Database)]
+    subgraph System
+      C(ClientUI) -->|HTTP| Ctrl[Controllers]
+      Ctrl --> DB
+    end
+
+
+Level 1 - Expansion with other processes
+
+flowchart TD
+    U[User] -->|1. request| P1[Client Management]
+    U -->|2. measurement| P2[Measurement Management]
+    U -->|3. order| P3[Order Management]
+    U -->|4. report| P4[Reporting]
+    P1 --> DB[(MySQL)]
+    P2 --> DB
+    P3 --> DB
+    P4 --> DB
+    DB --> P4
