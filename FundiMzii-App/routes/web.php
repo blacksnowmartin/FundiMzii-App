@@ -7,7 +7,7 @@ use App\Http\Controllers\OrderController;
 use App\Http\Controllers\ReportController;
 
 // Homepage
-Route::redirect('/', '/clients');
+Route::redirect('/', '/clients/create');
 
 // Clients CRUD
 Route::resource('clients', ClientController::class);

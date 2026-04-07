@@ -3,136 +3,143 @@
 @section('title', 'Dashboard - FundiMzii')
 
 @section('content')
-<h1 class="mb-4">Dashboard</h1>
+<div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center gap-3 mb-4">
+    <div>
+        <p class="section-kicker mb-2">Business Snapshot</p>
+        <h1 class="mb-1">Reports for daily tailoring work</h1>
+        <p class="text-muted mb-0">Track client volume, pending work, and the measurements your shop records most often.</p>
+    </div>
+    <a href="{{ route('clients.create') }}" class="btn btn-primary">Capture New Client</a>
+</div>
 
-<div class="row mb-4">
-    <div class="col-md-3">
-        <div class="card border-start border-5 border-primary">
-            <div class="card-body">
-                <h6 class="card-title text-muted">Total Clients</h6>
-                <h2 class="text-primary">{{ $totalClients }}</h2>
-            </div>
+<div class="row g-3 mb-4">
+    <div class="col-sm-6 col-xl-3">
+        <div class="metric-card">
+            <span>Total Clients</span>
+            <strong>{{ $totalClients }}</strong>
         </div>
     </div>
-    <div class="col-md-3">
-        <div class="card border-start border-5 border-info">
-            <div class="card-body">
-                <h6 class="card-title text-muted">Total Orders</h6>
-                <h2 class="text-info">{{ $totalOrders }}</h2>
-            </div>
+    <div class="col-sm-6 col-xl-3">
+        <div class="metric-card">
+            <span>Total Orders</span>
+            <strong>{{ $totalOrders }}</strong>
         </div>
     </div>
-    <div class="col-md-3">
-        <div class="card border-start border-5 border-warning">
-            <div class="card-body">
-                <h6 class="card-title text-muted">Pending Orders</h6>
-                <h2 class="text-warning">{{ $pendingOrders }}</h2>
-            </div>
+    <div class="col-sm-6 col-xl-3">
+        <div class="metric-card">
+            <span>Pending Orders</span>
+            <strong>{{ $pendingOrders }}</strong>
         </div>
     </div>
-    <div class="col-md-3">
-        <div class="card border-start border-5 border-success">
-            <div class="card-body">
-                <h6 class="card-title text-muted">Completed Orders</h6>
-                <h2 class="text-success">{{ $completedOrders }}</h2>
-            </div>
+    <div class="col-sm-6 col-xl-3">
+        <div class="metric-card">
+            <span>Total Measurements</span>
+            <strong>{{ $totalMeasurements }}</strong>
         </div>
     </div>
 </div>
 
-<div class="row">
-    <div class="col-md-6">
-        <div class="card">
-            <div class="card-header bg-primary text-white">
-                <strong>Recent Clients</strong>
+<div class="row g-4">
+    <div class="col-xl-6">
+        <div class="app-card h-100">
+            <div class="app-card-header">
+                <h2>Recent Clients</h2>
+                <p>Newest customer records</p>
             </div>
-            <div class="card-body">
-                @if($recentClients->count() > 0)
-                    <ul class="list-group list-group-flush">
-                        @foreach($recentClients as $client)
-                            <li class="list-group-item d-flex justify-content-between align-items-center">
-                                <div>
-                                    <strong>{{ $client->name }}</strong><br>
-                                    <small class="text-muted">{{ $client->phone_number }}</small>
-                                </div>
-                                <a href="{{ route('clients.show', $client) }}" class="btn btn-sm btn-primary">View</a>
-                            </li>
-                        @endforeach
-                    </ul>
-                @else
-                    <p class="text-muted">No clients yet</p>
-                @endif
-            </div>
+
+            @if($recentClients->count() > 0)
+                <div class="vstack gap-3">
+                    @foreach($recentClients as $client)
+                        <div class="list-tile d-flex justify-content-between align-items-center gap-3">
+                            <div>
+                                <strong>{{ $client->name }}</strong>
+                                <div class="text-muted small">{{ $client->phone_number }}</div>
+                            </div>
+                            <a href="{{ route('clients.show', $client) }}" class="btn btn-sm btn-outline-primary">Open</a>
+                        </div>
+                    @endforeach
+                </div>
+            @else
+                <p class="text-muted mb-0">No clients yet.</p>
+            @endif
         </div>
     </div>
 
-    <div class="col-md-6">
-        <div class="card">
-            <div class="card-header bg-success text-white">
-                <strong>Recent Orders</strong>
+    <div class="col-xl-6">
+        <div class="app-card h-100">
+            <div class="app-card-header">
+                <h2>Recent Orders</h2>
+                <p>Work requiring attention</p>
             </div>
-            <div class="card-body">
-                @if($recentOrders->count() > 0)
-                    <ul class="list-group list-group-flush">
-                        @foreach($recentOrders as $order)
-                            <li class="list-group-item d-flex justify-content-between align-items-center">
+
+            @if($recentOrders->count() > 0)
+                <div class="vstack gap-3">
+                    @foreach($recentOrders as $order)
+                        <div class="order-tile">
+                            <div class="d-flex justify-content-between gap-3">
                                 <div>
-                                    <strong>{{ $order->client->name }}</strong><br>
-                                    <small class="text-muted">{{ substr($order->description, 0, 40) }}...</small>
+                                    <strong>{{ $order->client->name }}</strong>
+                                    <div class="text-muted small">{{ $order->description }}</div>
                                 </div>
-                                <span class="badge bg-{{ $order->status == 'completed' ? 'success' : ($order->status == 'pending' ? 'danger' : 'warning') }}">
+                                <span class="badge {{ $order->status === 'completed' ? 'text-bg-success' : ($order->status === 'pending' ? 'text-bg-warning' : 'text-bg-info') }}">
                                     {{ ucfirst(str_replace('_', ' ', $order->status)) }}
                                 </span>
-                            </li>
-                        @endforeach
-                    </ul>
-                @else
-                    <p class="text-muted">No orders yet</p>
-                @endif
-            </div>
-        </div>
-    </div>
-</div>
-
-<div class="row mt-4">
-    <div class="col-md-12">
-        <div class="card">
-            <div class="card-header bg-info text-white">
-                <strong>System Statistics</strong>
-            </div>
-            <div class="card-body">
-                <div class="row text-center">
-                    <div class="col-md-4">
-                        <h5>Total Measurements</h5>
-                        <h3>{{ $totalMeasurements }}</h3>
-                    </div>
-                    <div class="col-md-4">
-                        <h5>Orders Completion Rate</h5>
-                        <h3>
-                            @if($totalOrders > 0)
-                                {{ round(($completedOrders / $totalOrders) * 100) }}%
-                            @else
-                                N/A
-                            @endif
-                        </h3>
-                    </div>
-                    <div class="col-md-4">
-                        <h5>Avg Measurements per Client</h5>
-                        <h3>
-                            @if($totalClients > 0)
-                                {{ round($totalMeasurements / $totalClients, 1) }}
-                            @else
-                                N/A
-                            @endif
-                        </h3>
-                    </div>
+                            </div>
+                        </div>
+                    @endforeach
                 </div>
-            </div>
+            @else
+                <p class="text-muted mb-0">No orders yet.</p>
+            @endif
         </div>
     </div>
 </div>
 
-<div class="text-center mt-4">
-    <a href="{{ route('clients.index') }}" class="btn btn-primary btn-lg">Go to Clients</a>
+<div class="row g-4 mt-1">
+    <div class="col-xl-6">
+        <div class="app-card h-100">
+            <div class="app-card-header">
+                <h2>Completion Snapshot</h2>
+                <p>Orders completed versus all orders</p>
+            </div>
+            <div class="progress soft-progress mb-3" role="progressbar" aria-label="Completion rate">
+                <div class="progress-bar" style="width: {{ $totalOrders > 0 ? round(($completedOrders / $totalOrders) * 100) : 0 }}%"></div>
+            </div>
+            <strong>
+                @if($totalOrders > 0)
+                    {{ round(($completedOrders / $totalOrders) * 100) }}% complete
+                @else
+                    No orders recorded yet
+                @endif
+            </strong>
+        </div>
+    </div>
+
+    <div class="col-xl-6">
+        <div class="app-card h-100">
+            <div class="app-card-header">
+                <h2>Frequently Requested Measurements</h2>
+                <p>Most commonly filled fields</p>
+            </div>
+
+            @if($frequentMeasurements->count() > 0)
+                <div class="vstack gap-3">
+                    @foreach($frequentMeasurements as $metric)
+                        <div>
+                            <div class="d-flex justify-content-between mb-1">
+                                <span>{{ $metric['label'] }}</span>
+                                <strong>{{ $metric['count'] }}</strong>
+                            </div>
+                            <div class="progress soft-progress">
+                                <div class="progress-bar" style="width: {{ $totalMeasurements > 0 ? round(($metric['count'] / $totalMeasurements) * 100) : 0 }}%"></div>
+                            </div>
+                        </div>
+                    @endforeach
+                </div>
+            @else
+                <p class="text-muted mb-0">No measurement statistics yet.</p>
+            @endif
+        </div>
+    </div>
 </div>
 @endsection

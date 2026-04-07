@@ -9,14 +9,17 @@
     @yield('extra-css')
 </head>
 <body>
-    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+    <nav class="navbar navbar-expand-lg app-navbar">
         <div class="container-fluid">
-            <a class="navbar-brand fw-bold" href="/">FundiMzii</a>
+            <a class="navbar-brand fw-bold" href="{{ route('clients.create') }}">FundiMzii</a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ route('clients.create') }}">Quick Capture</a>
+                    </li>
                     <li class="nav-item">
                         <a class="nav-link" href="{{ route('clients.index') }}">Clients</a>
                     </li>
@@ -29,6 +32,8 @@
     </nav>
 
     <div class="container-fluid py-4">
+        <div id="app-alerts"></div>
+
         @if($errors->any())
             <div class="alert alert-danger alert-dismissible fade show">
                 <strong>Errors found:</strong>
@@ -51,8 +56,8 @@
         @yield('content')
     </div>
 
-    <footer class="bg-light text-center py-3 mt-5 border-top">
-        <p class="text-muted mb-0">&copy; 2024 FundiMzii - Tailoring Management System</p>
+    <footer class="app-footer text-center py-3 mt-5 border-top">
+        <p class="text-muted mb-0">&copy; 2026 FundiMzii. Built for local tailoring workflows.</p>
     </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>

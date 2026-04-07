@@ -1,19 +1,8 @@
 // FundiMzii JavaScript functionality
 
-// Offline data storage using localStorage
 class OfflineStorage {
     constructor() {
         this.storageKey = 'fundimzii_queue';
-    }
-
-    add(action, data) {
-        const queue = this.get();
-        queue.push({
-            action: action,
-            data: data,
-            timestamp: new Date().toISOString()
-        });
-        localStorage.setItem(this.storageKey, JSON.stringify(queue));
     }
 
     get() {
@@ -21,146 +10,143 @@ class OfflineStorage {
         return data ? JSON.parse(data) : [];
     }
 
-    clear() {
-        localStorage.removeItem(this.storageKey);
+    save(queue) {
+        localStorage.setItem(this.storageKey, JSON.stringify(queue));
     }
 
-    isEmpty() {
-        return this.get().length === 0;
+    add(payload) {
+        const queue = this.get();
+        queue.push({
+            ...payload,
+            timestamp: new Date().toISOString(),
+        });
+        this.save(queue);
+    }
+
+    removeAt(index) {
+        const queue = this.get();
+        queue.splice(index, 1);
+        this.save(queue);
     }
 }
 
-// Initialize offline storage
 const offlineStorage = new OfflineStorage();
 
-// Check online/offline status
-window.addEventListener('online', function() {
-    console.log('Connection restored!');
-    showNotification('Connection restored! Syncing data...', 'success');
+function showNotification(message, type = 'info') {
+    const container = document.querySelector('#app-alerts') || document.querySelector('.container-fluid');
+    if (!container) {
+        return;
+    }
+
+    const wrapper = document.createElement('div');
+    wrapper.className = `alert alert-${type} alert-dismissible fade show`;
+    wrapper.role = 'alert';
+    wrapper.innerHTML = `
+        ${message}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    `;
+
+    container.prepend(wrapper);
+}
+
+function serializeForm(form) {
+    const formData = new FormData(form);
+    const data = {};
+
+    for (const [key, value] of formData.entries()) {
+        if (value instanceof File) {
+            if (value.name) {
+                data[`${key}_filename`] = value.name;
+            }
+            continue;
+        }
+
+        data[key] = value;
+    }
+
+    return data;
+}
+
+async function syncOfflineData() {
+    const queue = offlineStorage.get();
+
+    if (!queue.length || !navigator.onLine) {
+        return;
+    }
+
+    for (let index = 0; index < queue.length; index += 1) {
+        const item = queue[index];
+
+        try {
+            const response = await fetch(item.action, {
+                method: item.method || 'POST',
+                headers: {
+                    'Accept': 'text/html,application/xhtml+xml',
+                    'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8',
+                    'X-Requested-With': 'XMLHttpRequest',
+                },
+                body: new URLSearchParams(item.data).toString(),
+                credentials: 'same-origin',
+            });
+
+            if (!response.ok) {
+                throw new Error(`Sync failed with status ${response.status}`);
+            }
+
+            offlineStorage.removeAt(index);
+            index -= 1;
+        } catch (error) {
+            console.error('FundiMzii sync error:', error);
+            showNotification('Some offline records are still waiting to sync.', 'warning');
+            return;
+        }
+    }
+
+    showNotification('Offline records synced successfully.', 'success');
+}
+
+window.addEventListener('online', () => {
+    showNotification('Connection restored. Syncing saved records...', 'success');
     syncOfflineData();
 });
 
-window.addEventListener('offline', function() {
-    console.log('Connection lost! Using offline mode...');
-    showNotification('Connection lost. Changes will sync when online.', 'warning');
+window.addEventListener('offline', () => {
+    showNotification('You are offline. New form entries will be queued on this device.', 'warning');
 });
 
-// Show notification
-function showNotification(message, type = 'info') {
-    const alertClass = `alert-${type}`;
-    const alertHtml = `
-        <div class="alert ${alertClass} alert-dismissible fade show" role="alert">
-            ${message}
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-        </div>
-    `;
-    
-    const container = document.querySelector('.container-fluid');
-    if (container) {
-        container.insertAdjacentHTML('afterbegin', alertHtml);
+document.addEventListener('DOMContentLoaded', () => {
+    if (!navigator.onLine) {
+        showNotification('Offline mode is active on this device.', 'warning');
+    } else {
+        syncOfflineData();
     }
-}
 
-// Form submission with offline support
-document.querySelectorAll('form').forEach(form => {
-    form.addEventListener('submit', function(e) {
-        if (!navigator.onLine) {
-            e.preventDefault();
-            // Store form data for later sync
-            const formData = new FormData(this);
-            offlineStorage.add('form_submit', Object.fromEntries(formData));
-            showNotification('Form saved offline. Will sync when connection is restored.', 'warning');
-        }
+    document.querySelectorAll('form[data-offline-form]').forEach((form) => {
+        form.addEventListener('submit', (event) => {
+            if (navigator.onLine) {
+                return;
+            }
+
+            event.preventDefault();
+            const data = serializeForm(form);
+
+            offlineStorage.add({
+                action: form.action,
+                method: (form.method || 'POST').toUpperCase(),
+                data,
+            });
+
+            form.reset();
+            showNotification('Form saved offline. Photo files will need to be reattached before final submission if they were not online.', 'warning');
+        });
+    });
+
+    document.querySelectorAll('form[data-confirm]').forEach((form) => {
+        form.addEventListener('submit', (event) => {
+            const message = form.getAttribute('data-confirm');
+            if (!window.confirm(message)) {
+                event.preventDefault();
+            }
+        });
     });
 });
-
-// Sync offline data when back online
-function syncOfflineData() {
-    const queue = offlineStorage.get();
-    if (queue.length === 0) return;
-
-    queue.forEach((item, index) => {
-        setTimeout(() => {
-            // You would implement actual sync logic here
-            console.log('Syncing:', item);
-            // After successful sync, remove from queue
-            offlineStorage.clear();
-            showNotification(`Synced ${queue.length} queued items`, 'success');
-        }, index * 500);
-    });
-}
-
-// Format currency
-function formatCurrency(amount) {
-    return new Intl.NumberFormat('en-KE', {
-        style: 'currency',
-        currency: 'KES'
-    }).format(amount);
-}
-
-// Confirmation dialogs
-document.querySelectorAll('form[data-confirm]').forEach(form => {
-    form.addEventListener('submit', function(e) {
-        const message = this.getAttribute('data-confirm');
-        if (!confirm(message)) {
-            e.preventDefault();
-        }
-    });
-});
-
-// Print functionality
-function printPage() {
-    window.print();
-}
-
-// Initialize Bootstrap tooltips and popovers if used
-document.addEventListener('DOMContentLoaded', function() {
-    // Initialize any tooltips
-    const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
-    tooltipTriggerList.map(function(tooltipTriggerEl) {
-        return new bootstrap.Tooltip(tooltipTriggerEl);
-    });
-
-    // Format currency fields
-    document.querySelectorAll('[data-currency]').forEach(el => {
-        if (el.value) {
-            el.value = formatCurrency(parseFloat(el.value));
-        }
-    });
-});
-
-// Search functionality with debounce
-function debounce(func, wait) {
-    let timeout;
-    return function executedFunction(...args) {
-        const later = () => {
-            clearTimeout(timeout);
-            func(...args);
-        };
-        clearTimeout(timeout);
-        timeout = setTimeout(later, wait);
-    };
-}
-
-// Export data to JSON
-function exportData() {
-    const data = {
-        clients: [],
-        measurements: [],
-        orders: [],
-        exportDate: new Date().toISOString()
-    };
-
-    const dataStr = JSON.stringify(data, null, 2);
-    const dataBlob = new Blob([dataStr], { type: 'application/json' });
-    const url = URL.createObjectURL(dataBlob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = `fundimzii_backup_${new Date().getTime()}.json`;
-    link.click();
-}
-
-// Check if online on page load
-if (!navigator.onLine) {
-    showNotification('Currently offline. Data will be synced when connection is restored.', 'warning');
-}
