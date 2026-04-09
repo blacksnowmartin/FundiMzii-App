@@ -61,31 +61,31 @@
                             </div>
                             <div class="row">
                                 <div class="col-6 mb-3">
-                                    <label for="chest" class="form-label">Chest (cm)</label>
+                                    <label for="chest" class="form-label">Chest (Inches)</label>
                                     <input type="number" step="0.01" class="form-control measurement-input" id="chest" name="chest">
                                 </div>
                                 <div class="col-6 mb-3">
-                                    <label for="waist" class="form-label">Waist (cm)</label>
+                                    <label for="waist" class="form-label">Waist (Inches)</label>
                                     <input type="number" step="0.01" class="form-control measurement-input" id="waist" name="waist">
                                 </div>
                             </div>
                             <div class="row">
                                 <div class="col-6 mb-3">
-                                    <label for="hips" class="form-label">Hips (cm)</label>
+                                    <label for="hips" class="form-label">Hips (Inches)</label>
                                     <input type="number" step="0.01" class="form-control measurement-input" id="hips" name="hips">
                                 </div>
                                 <div class="col-6 mb-3">
-                                    <label for="shoulder" class="form-label">Shoulder (cm)</label>
+                                    <label for="shoulder" class="form-label">Shoulder (Inches)</label>
                                     <input type="number" step="0.01" class="form-control measurement-input" id="shoulder" name="shoulder">
                                 </div>
                             </div>
                             <div class="row">
                                 <div class="col-6 mb-3">
-                                    <label for="sleeve" class="form-label">Sleeve (cm)</label>
+                                    <label for="sleeve" class="form-label">Sleeve (Inches)</label>
                                     <input type="number" step="0.01" class="form-control measurement-input" id="sleeve" name="sleeve">
                                 </div>
                                 <div class="col-6 mb-3">
-                                    <label for="inseam" class="form-label">Inseam (cm)</label>
+                                    <label for="inseam" class="form-label">Inseam (Inches)</label>
                                     <input type="number" step="0.01" class="form-control measurement-input" id="inseam" name="inseam">
                                 </div>
                             </div>
