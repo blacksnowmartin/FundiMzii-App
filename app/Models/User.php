@@ -30,3 +30,5 @@ class User extends Authenticatable
         ];
     }
 }
+
+// php artisan make:model User -f
