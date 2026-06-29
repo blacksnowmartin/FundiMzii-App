@@ -109,6 +109,7 @@ return [
     | Here you may define the number of seconds before a password confirmation
     | window expires and users are asked to re-enter their password via the
     | confirmation screen. By default, the timeout lasts for three hours.
+    | AUTH_PASSWORD_TIMEOUT is the environment variable that can be used to override this value.
     |
     */
 
