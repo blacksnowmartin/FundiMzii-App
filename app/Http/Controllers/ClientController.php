@@ -11,8 +11,10 @@ class ClientController extends Controller
 {
     public function index()
     {
-        $clients = Client::with('measurements')->get();
-        return view('fundimzii.index', compact('clients'));
+        $clients = Client::active()->with('measurements')->get();
+        $archivedClients = Client::archived()->with('measurements')->get();
+
+        return view('fundimzii.index', compact('clients', 'archivedClients'));
     }
 
     public function store(Request $request)
@@ -64,15 +66,33 @@ class ClientController extends Controller
     public function search(Request $request)
     {
         $query = $request->get('q');
-        $clients = Client::where('name', 'like', "%{$query}%")
-            ->orWhere('phone', 'like', "%{$query}%")
-            ->orWhereHas('measurements', function ($q) use ($query) {
-                $q->whereDate('measurement_date', $query);
+        $clients = Client::active()
+            ->where(function ($queryBuilder) use ($query) {
+                $queryBuilder->where('name', 'like', "%{$query}%")
+                    ->orWhere('phone', 'like', "%{$query}%")
+                    ->orWhereHas('measurements', function ($q) use ($query) {
+                        $q->whereDate('measurement_date', $query);
+                    });
             })
             ->with('measurements')
             ->get();
+        $archivedClients = collect();
 
-        return view('fundimzii.index', compact('clients'));
+        return view('fundimzii.index', compact('clients', 'archivedClients'));
+    }
+
+    public function archive(Client $client)
+    {
+        $client->update(['archived_at' => now()]);
+
+        return redirect()->back()->with('success', 'Client archived successfully.');
+    }
+
+    public function restore(Client $client)
+    {
+        $client->update(['archived_at' => null]);
+
+        return redirect()->back()->with('success', 'Client restored successfully.');
     }
 
     public function exportPdf($measurementId)

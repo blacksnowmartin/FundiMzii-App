@@ -137,6 +137,11 @@
                                         @foreach($client->measurements as $measurement)
                                             <a href="{{ route('export.pdf', $measurement->id) }}" class="btn btn-sm btn-outline-brand">PDF</a>
                                         @endforeach
+                                        <form action="{{ route('clients.archive', $client) }}" method="POST" class="d-inline">
+                                            @csrf
+                                            @method('PATCH')
+                                            <button type="submit" class="btn btn-sm btn-outline-secondary">Archive</button>
+                                        </form>
                                     </td>
                                 </tr>
                             @endforeach
@@ -144,7 +149,39 @@
                     </table>
                 </div>
             @else
-                <p class="text-muted mb-0">No clients found. Use the form above to add your first client.</p>
+                <p class="text-muted mb-0">No active clients found. Use the form above to add your first client.</p>
+            @endif
+
+            @if($archivedClients->count() > 0)
+                <div class="mt-4">
+                    <h3 class="h6">Archived Clients</h3>
+                    <div class="table-responsive">
+                        <table class="table align-middle">
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Phone</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach($archivedClients as $client)
+                                    <tr>
+                                        <td>{{ $client->name }}</td>
+                                        <td>{{ $client->phone }}</td>
+                                        <td>
+                                            <form action="{{ route('clients.restore', $client) }}" method="POST" class="d-inline">
+                                                @csrf
+                                                @method('PATCH')
+                                                <button type="submit" class="btn btn-sm btn-brand">Restore</button>
+                                            </form>
+                                        </td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
             @endif
         </div>
     </div>

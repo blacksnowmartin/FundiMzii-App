@@ -5,6 +5,8 @@ use App\Http\Controllers\ClientController;
 
 Route::get('/', [ClientController::class, 'index'])->name('home');
 Route::post('/clients', [ClientController::class, 'store'])->name('clients.store');
+Route::patch('/clients/{client}/archive', [ClientController::class, 'archive'])->name('clients.archive');
+Route::patch('/clients/{client}/restore', [ClientController::class, 'restore'])->name('clients.restore');
 Route::get('/search', [ClientController::class, 'search'])->name('search');
 Route::get('/export-pdf/{measurementId}', [ClientController::class, 'exportPdf'])->name('export.pdf');
 Route::get('/reports', [ClientController::class, 'reports'])->name('reports');
