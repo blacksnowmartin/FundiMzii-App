@@ -20,3 +20,4 @@ class Measurement extends Model
         return $this->belongsTo(Client::class);
     }
 }
+// remember to run the migration for the measurements table after creating this model. You can do this by running the following command:
