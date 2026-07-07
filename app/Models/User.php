@@ -31,4 +31,4 @@ class User extends Authenticatable
     }
 }
 
-// php artisan make:model User -f
+// php artisan make:model User -f .... Thinking of resuming on NetAlmoner
