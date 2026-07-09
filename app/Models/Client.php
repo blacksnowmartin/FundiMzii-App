@@ -27,3 +27,4 @@ class Client extends Model
         return $query->whereNotNull('archived_at');
     }
 }
+// the Archiving feature is a soft delete feature that allows you to mark a client as archived without actually deleting the record from the database. This is useful for keeping historical data and for restoring clients if needed.
