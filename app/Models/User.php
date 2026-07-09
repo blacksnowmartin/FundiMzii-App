@@ -31,4 +31,4 @@ class User extends Authenticatable
     }
 }
 
-// php artisan make:model User -f .... Thinking of resuming on NetAlmoner
+// php artisan make:model User -f .... Thinking of resuming on NetAlmoner .... where did I store the prompt
